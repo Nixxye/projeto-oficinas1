@@ -13,5 +13,5 @@ Jogo::~Jogo()
 
 void Jogo::executar()
 {
-
+    fase.executar();
 }
