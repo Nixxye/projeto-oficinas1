@@ -28,6 +28,8 @@ namespace Estados
         bool carregarFaixa(std::string endereco);
         void mudarVelocidade(const unsigned char v);
         void girarEsteira();
+        // Talvez mudar o contador para ser atributo:
+        void atualizarLeds();
         // void mudarPontuação(bool p);
     };    
 }

@@ -37,8 +37,11 @@ namespace Estados
 
             janela.clear();
             // Núcleo de execução da simulação:
+            // Threads separadas:
             girarEsteira();
-            
+            atualizarLeds();
+            // GetInputs
+
             janela.display();
         }
     }
@@ -84,8 +87,6 @@ namespace Estados
     }
     void Fase::girarEsteira()
     {
-        contador++;
-
         for (int i = 0; i < N_BOLINHAS; i++)
         {
             bolinhas[i]->setPosition(bolinhas[i]->getPosition() + sf::Vector2f(0.f, bpm));
@@ -94,11 +95,20 @@ namespace Estados
                 bolinhas[i]->setPosition(sf::Vector2f(bolinhas[i]->getPosition().x , -100.f));
                 
             }
-            if (i >= N_BOLINHAS % contador && i <= N_BOLINHAS % contador + 3)
-            {
-                bolinhas[i]->setFillColor(sf::Color::Red);
-            }
             janela.draw(*bolinhas[i]);
+        }
+    }
+    void Fase::atualizarLeds()
+    {
+        contador++;
+        if (contador % (int) (bpm) == 0)
+        {
+            int p = contador / bpm*100;
+            sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
+            bolinhas[(4 * p)%N_BOLINHAS]->setFillColor(cor);
+            bolinhas[(4 * p)%N_BOLINHAS + 1]->setFillColor(cor);
+            bolinhas[(4 * p)%N_BOLINHAS + 2]->setFillColor(cor);
+            bolinhas[(4 * p)%N_BOLINHAS + 3]->setFillColor(cor);
         }
     }
 }
