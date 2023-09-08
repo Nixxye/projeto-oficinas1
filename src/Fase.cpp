@@ -1,5 +1,6 @@
 #include "../Estados/Fase.h"
 
+
 namespace Estados
 {
     Fase::Fase():
@@ -7,7 +8,8 @@ namespace Estados
     bpm(0),
     tamanho(0),
     janela(sf::VideoMode(600, 600), "Guitar Healer"),
-    contador(0)
+    contador(0),
+    encerrar(false)
     {
         janela.setFramerateLimit(60);
 
@@ -28,19 +30,26 @@ namespace Estados
     void Fase::executar()
     {
         carregarFaixa("Musicas/faixa.txt");
+        std::thread girar(&Fase::girarEsteira, this);
+        std::thread att(&Fase::atualizarLeds, this);
         while(janela.isOpen())
         {
             sf::Event event;
             while (janela.pollEvent(event))
                 if (event.type == sf::Event::Closed)
+                {
+                    encerrar = true;
+                    girar.join();
+                    att.join();
                     janela.close();
+                }
+
 
             janela.clear();
-            // Núcleo de execução da simulação:
-            // Threads separadas:
-            girarEsteira();
-            atualizarLeds();
-            // GetInputs
+            for (int i = 0; i < N_BOLINHAS; i++)
+            {
+                janela.draw(*bolinhas[i]);
+            }
 
             janela.display();
         }
@@ -87,28 +96,35 @@ namespace Estados
     }
     void Fase::girarEsteira()
     {
-        for (int i = 0; i < N_BOLINHAS; i++)
+        while (!encerrar)
         {
-            bolinhas[i]->setPosition(bolinhas[i]->getPosition() + sf::Vector2f(0.f, bpm));
-            if (bolinhas[i]->getPosition().y >= 600)
+            for (int i = 0; i < N_BOLINHAS; i++)
             {
-                bolinhas[i]->setPosition(sf::Vector2f(bolinhas[i]->getPosition().x , -100.f));
-                
+                bolinhas[i]->setPosition(bolinhas[i]->getPosition() + sf::Vector2f(0.f, bpm));
+                if (bolinhas[i]->getPosition().y >= 600)
+                {
+                    bolinhas[i]->setPosition(sf::Vector2f(bolinhas[i]->getPosition().x , -100.f));
+                    
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));         
             }
-            janela.draw(*bolinhas[i]);
         }
     }
     void Fase::atualizarLeds()
     {
-        contador++;
-        if (contador % (int) (bpm) == 0)
+        while (!encerrar)
         {
-            int p = contador / bpm*100;
-            sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
-            bolinhas[(4 * p)%N_BOLINHAS]->setFillColor(cor);
-            bolinhas[(4 * p)%N_BOLINHAS + 1]->setFillColor(cor);
-            bolinhas[(4 * p)%N_BOLINHAS + 2]->setFillColor(cor);
-            bolinhas[(4 * p)%N_BOLINHAS + 3]->setFillColor(cor);
+            contador++;
+            if (contador % (int) (bpm) == 0)
+            {
+                int p = contador / bpm*100;
+                sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
+                bolinhas[(4 * p)%N_BOLINHAS]->setFillColor(cor);
+                bolinhas[(4 * p)%N_BOLINHAS + 1]->setFillColor(cor);
+                bolinhas[(4 * p)%N_BOLINHAS + 2]->setFillColor(cor);
+                bolinhas[(4 * p)%N_BOLINHAS + 3]->setFillColor(cor);
+            }   
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));         
         }
     }
 }
