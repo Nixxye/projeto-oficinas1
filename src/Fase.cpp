@@ -9,7 +9,8 @@ namespace Estados
     tamanho(0),
     janela(sf::VideoMode(600, 600), "Guitar Healer"),
     contador(0),
-    encerrar(false)
+    ge(),
+    inputs(ge.getFila())
     {
         janela.setFramerateLimit(60);
 
@@ -30,17 +31,23 @@ namespace Estados
     void Fase::executar()
     {
         carregarFaixa("Musicas/faixa.txt");
+
         std::thread girar(&Fase::girarEsteira, this);
         std::thread att(&Fase::atualizarLeds, this);
+        std::thread atInpts(&Fase::verificarInputs, this);
+        std::thread evInputs(&Gerenciadores::GerEventos::captarInputs, &ge);
+
         while(janela.isOpen())
         {
             sf::Event event;
             while (janela.pollEvent(event))
                 if (event.type == sf::Event::Closed)
                 {
-                    encerrar = true;
+                    terminar = true;
                     girar.join();
                     att.join();
+                    atInpts.join();
+                    evInputs.join();
                     janela.close();
                 }
 
@@ -96,7 +103,7 @@ namespace Estados
     }
     void Fase::girarEsteira()
     {
-        while (!encerrar)
+        while (!terminar)
         {
             for (int i = 0; i < N_BOLINHAS; i++)
             {
@@ -104,27 +111,57 @@ namespace Estados
                 if (bolinhas[i]->getPosition().y >= 600)
                 {
                     bolinhas[i]->setPosition(sf::Vector2f(bolinhas[i]->getPosition().x , -100.f));
-                    
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));         
             }
         }
     }
+    void Fase::verificarInputs()
+    {
+        char rcpt;
+
+        while (!terminar)
+        {
+            if (!(inputs->empty()))
+            {
+                rcpt = inputs->front();
+                inputs->pop();
+                switch (rcpt)
+                {
+                    case '1':
+                        std::cout << "1" << std::endl;
+                        break;
+                    case '2':
+                        std::cout << "2" << std::endl;
+                        break;
+                    case '3':
+                        std::cout << "3" << std::endl;
+                        break;
+                    case '4':
+                        std::cout << "4" << std::endl;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
     void Fase::atualizarLeds()
     {
-        while (!encerrar)
+        contador = 8;
+        while (!terminar)
         {
-            contador++;
-            if (contador % (int) (bpm) == 0)
-            {
-                int p = contador / bpm*100;
-                sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
-                bolinhas[(4 * p)%N_BOLINHAS]->setFillColor(cor);
-                bolinhas[(4 * p)%N_BOLINHAS + 1]->setFillColor(cor);
-                bolinhas[(4 * p)%N_BOLINHAS + 2]->setFillColor(cor);
-                bolinhas[(4 * p)%N_BOLINHAS + 3]->setFillColor(cor);
-            }   
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));         
+            contador -= 4;
+            if (contador < 0)
+                contador = N_BOLINHAS - 4;
+
+            sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
+            bolinhas[contador]->setFillColor(cor);
+            bolinhas[contador + 1]->setFillColor(cor);
+            bolinhas[contador + 2]->setFillColor(cor);
+            bolinhas[contador + 3]->setFillColor(cor);
+            // std::cout << "Pintando " << contador << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(3600/bpm));         
         }
     }
 }
