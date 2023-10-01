@@ -43,13 +43,16 @@ void loop() {
   // Serial.println(analogRead(POT_PIN));
   // Serial.print(" ");
   v = analogRead(POT_PIN);
-  if (v <= 341)
-    v = 0;
-  else if (v <= 642)
-    v = 1;
-  else 
-    v = 2;
-  radio.write(&v, sizeof(int));
   Serial.println(v);
+  if (v <= 255)
+    v = 0;
+  else if (v <= 512)
+    v = 1;
+  else if (v <= 767)
+    v = 2;
+  else 
+    v = 3;
+  radio.write(&v, sizeof(int));
+
   delay(200);
 }
