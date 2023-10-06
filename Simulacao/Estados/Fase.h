@@ -3,12 +3,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <thread>
 #include <queue>
 #include "../T_class.h"
-#include "../Gerenciadores/GerEventos.h"
+#include "../Receptor/Receptor.h"
+#include "../Lcd/Lcd.h"
 // Constantes para a simulação:
 #define N_COLUNAS 4
 #define N_BOLINHAS 36
@@ -22,11 +22,12 @@ namespace Estados
         unsigned char bpm;
         unsigned char tamanho;
         int contador;
-        Gerenciadores::GerEventos ge;
+        Receptor receptor;
+        Lcd lcd;
         // Apenas para simulação;
-        std::vector<sf::CircleShape*> bolinhas;
+        // std::vector<sf::CircleShape*> bolinhas;
         std::queue<char>* inputs;
-        sf::RenderWindow janela;
+        // sf::RenderWindow janela;
     public:
         Fase();
         ~Fase();

@@ -78,7 +78,7 @@ int main()   {
 
 }
 
-void moveText(char *txt, int tam, char* s)
+void moveText(char *txt, int tam)
 {
   char aux = txt[0];
   for (int i = 0; i < tam; i++)
@@ -86,8 +86,6 @@ void moveText(char *txt, int tam, char* s)
     txt[i] = txt[i+1];
   }
   txt[tam] = aux;
-  for (int i = 0; i < 16; i++)
-    s[i] = txt[i];
 }
 
 // float to string
@@ -130,7 +128,7 @@ void typeChar(char val)   {
 // this allows use of any size string
 void typeln(const char *s)   {
 
-  while ( *s ) lcd_byte(*(s++), LCD_CHR);
+  for (int i = 0; *s && i < 16; i++) lcd_byte(*(s++), LCD_CHR);
 
 }
 

@@ -7,26 +7,27 @@ namespace Estados
     faixa(nullptr),
     bpm(0),
     tamanho(0),
-    janela(sf::VideoMode(600, 600), "Guitar Healer"),
+    // janela(sf::VideoMode(600, 600), "Guitar Healer"),
     contador(0),
-    ge(),
-    inputs(ge.getFila())
+    receptor(),
+    lcd("How to save a life - The Fray - "),
+    inputs(receptor.getFila())
     {
-        janela.setFramerateLimit(60);
+        // // janela.setFramerateLimit(60);
 
-        sf::CircleShape* aux;
-        for (int i = 0; i < N_BOLINHAS; i++)
-        {
-            aux = new sf::CircleShape(30.f);
-            aux->setFillColor(sf::Color::White);  
-            aux->setPosition(sf::Vector2f(100 * (1 + (i % 4)), (100 * ((int) i / 4))));
-            bolinhas.push_back(aux);
-        }
+        // sf::CircleShape* aux;
+        // for (int i = 0; i < N_BOLINHAS; i++)
+        // {
+        //     aux = new sf::CircleShape(30.f);
+        //     aux->setFillColor(sf::Color::White);  
+        //     aux->setPosition(sf::Vector2f(100 * (1 + (i % 4)), (100 * ((int) i / 4))));
+        //     // bolinhas.push_back(aux);
+        // }
     }
     Fase::~Fase()
     {
-        for (int i = 0; i < N_BOLINHAS; i++)
-            delete bolinhas[i];  
+        // for (int i = 0; i < N_BOLINHAS; i++)
+        //     delete bolinhas[i];  
     }
     void Fase::executar()
     {
@@ -35,31 +36,19 @@ namespace Estados
         std::thread girar(&Fase::girarEsteira, this);
         std::thread att(&Fase::atualizarLeds, this);
         std::thread atInpts(&Fase::verificarInputs, this);
-        std::thread evInputs(&Gerenciadores::GerEventos::captarInputs, &ge);
-
-        while(janela.isOpen())
-        {
-            sf::Event event;
-            while (janela.pollEvent(event))
-                if (event.type == sf::Event::Closed)
-                {
-                    terminar = true;
-                    girar.join();
-                    att.join();
-                    atInpts.join();
-                    evInputs.join();
-                    janela.close();
-                }
+        std::thread evInputs(&Receptor::captarInputs, &receptor);
+        std::thread evInputs(&Lcd::executar, &lcd);
 
 
-            janela.clear();
-            for (int i = 0; i < N_BOLINHAS; i++)
-            {
-                janela.draw(*bolinhas[i]);
-            }
-
-            janela.display();
-        }
+        // if (botão fechar)
+        // {
+        //     terminar = true;
+        //     girar.join();
+        //     att.join();
+        //     atInpts.join();
+        //     evInputs.join();
+        //     janela.close();
+        // }
     }
     bool Fase::carregarFaixa(std::string endereco)
     {
@@ -105,15 +94,8 @@ namespace Estados
     {
         while (!terminar)
         {
-            for (int i = 0; i < N_BOLINHAS; i++)
-            {
-                bolinhas[i]->setPosition(bolinhas[i]->getPosition() + sf::Vector2f(0.f, bpm));
-                if (bolinhas[i]->getPosition().y >= 600)
-                {
-                    bolinhas[i]->setPosition(sf::Vector2f(bolinhas[i]->getPosition().x , -100.f));
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));         
-            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));         
         }
     }
     void Fase::verificarInputs()
@@ -151,16 +133,16 @@ namespace Estados
         contador = 8;
         while (!terminar)
         {
-            contador -= 4;
-            if (contador < 0)
-                contador = N_BOLINHAS - 4;
+            // contador -= 4;
+            // if (contador < 0)
+            //     contador = N_BOLINHAS - 4;
 
-            sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
-            bolinhas[contador]->setFillColor(cor);
-            bolinhas[contador + 1]->setFillColor(cor);
-            bolinhas[contador + 2]->setFillColor(cor);
-            bolinhas[contador + 3]->setFillColor(cor);
-            // std::cout << "Pintando " << contador << std::endl;
+            // sf::Color cor = sf::Color(rand() % 255, rand() % 255, rand() % 255);
+            // bolinhas[contador]->setFillColor(cor);
+            // bolinhas[contador + 1]->setFillColor(cor);
+            // bolinhas[contador + 2]->setFillColor(cor);
+            // bolinhas[contador + 3]->setFillColor(cor);
+            // // std::cout << "Pintando " << contador << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(3600/bpm));         
         }
     }
