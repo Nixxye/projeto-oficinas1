@@ -28,7 +28,7 @@ class Lcd: public T_class
 private:
     void lcd_init();
     void lcd_byte(int bits, int mode);
-    void lcd_toggle_enable(int bits) 
+    void lcd_toggle_enable(int bits);
     void typeInt(int i);
     void typeFloat(float myFloat);
     void lcdLoc(int line); //move cursor
@@ -41,7 +41,8 @@ private:
     char *music; 
     int size;
 public:
-    Lcd(char* m = " ");
+    Lcd(char* m);
+    Lcd();
     ~Lcd();
     void changeMusic(char* m);
     void execute();

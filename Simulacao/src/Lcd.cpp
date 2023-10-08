@@ -1,15 +1,23 @@
 #include "../Lcd/Lcd.h"
 
 Lcd::Lcd(char* m):
-strcpy(music, m),
-size(strlen(music)),
+fd(wiringPiI2CSetup(I2C_ADDR))
+{
+    strcpy(music, m);
+    size = strlen(music);
+    if (wiringPiSetup () == -1) exit (1);
+
+    lcd_init();
+}
+Lcd::Lcd():
+music(NULL),
+size(0),
 fd(wiringPiI2CSetup(I2C_ADDR))
 {
     if (wiringPiSetup () == -1) exit (1);
 
     lcd_init();
 }
-
 Lcd::~Lcd()
 {
 

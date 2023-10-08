@@ -25,4 +25,5 @@ public:
     // fazer const:
     std::queue<char>* getFila();
     void captarInputs();
+    RF24 radio;
 };

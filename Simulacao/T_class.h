@@ -1,5 +1,7 @@
 #pragma once
 // Classe base para as classe que terão threads concorrentes
+#include <chrono>
+#include <thread>
 
 class T_class
 {

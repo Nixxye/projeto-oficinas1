@@ -1,13 +1,12 @@
 #include "../Receptor/Receptor.h"
 #include <thread>
-
+#include <iostream>
 using namespace std;
 
 Receptor::Receptor():
+radio(PIN_CE, PIN_CSN),
 inputs()
 {
-    RF24 radio(PIN_CE, PIN_CSN);
-
     radio.begin();
 
     radio.setChannel(115);
@@ -62,7 +61,7 @@ void Receptor::captarInputs()
 
             cout << "Data : " << receivedData << endl;
             
-            inputs.pushBack(receivedData);
+            inputs.push(receivedData);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(100));     
 
