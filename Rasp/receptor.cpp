@@ -1,102 +1,35 @@
-#include <iostream>
+import RPi.GPIO as GPIO
+from lib_nrf24 import NRF24
+import time
+import spidev
 
-#include <RF24/nRF24L01.h>
+GPIO.setmode(GPIO.BCM)
 
-#include <RF24/RF24.h>
+pipeS = [[0xE8, 0xE8, 0xF0, 0xF0, 0xE1], [0xF0, 0xF0, 0xF0, 0xF0, 0xE1]]
 
+radio = NRF24(GPIO, spidev.SpiDev())
+radio.begin(0, 17) #Mudar pinos
 
+radio.setPayloadSize(32)
+radio.setChannel(0x76)
+radio.setDataRate(NRF24.BR_1MBPS)
+radio.setPALevel(NRF24.PA_MIN)
 
-using namespace std;
+radio.setAutoAck(True)
+radio.enableDynamicPayloads()
+radio.enableAckPayload()
 
+radio.openReadingPipe(1, pipeS[1])
+radio.printDetails()
+radio.startListening()
 
+while True:
+    while not radio.available(0):
+        time.sleep(1/100)
+    
+    receivedMessage = []
+    radio.read(receivedMessage, radio.getDynamicPayloadSize())
+    print("Received message: {}".format(receivedMessage))
 
-#define PIN_CE  17
-
-#define PIN_CSN 0
-
-
-
-uint8_t pipeNumber;
-
-uint8_t payloadSize;
-
-
-
-int main() {
-
-
-
-  RF24 radio(PIN_CE, PIN_CSN);
-
-
-
-  radio.begin();
-
-  radio.setChannel(115);
-
-  radio.setPALevel(RF24_PA_HIGH);
-
-  radio.setDataRate(RF24_1MBPS);
-
-  radio.enableDynamicPayloads();
-
-
-
-  radio.openReadingPipe(0, 0x7878787878LL);
-
-
-
-  radio.printDetails();
-
-
-
-  radio.startListening(); 
-
-
-
-  cout << "Start listening..." << endl;
-
-  int receivedData;
-
-  while (true) {
-
-
-
-    if (radio.available(&pipeNumber)) {
-
-      
-
-      payloadSize = radio.getDynamicPayloadSize();
-
-      int payload[payloadSize];
-
-      receivedData = 0;
-
-      radio.read(&payload, sizeof(payload));
-
-
-
-      for (uint8_t i = 0; i < payloadSize; i++) {
-
-          receivedData += payload[i];
-
-      }
-
-      cout << "Pipe : " << (int) pipeNumber << " ";
-
-      cout << "Size : " << (int) payloadSize << " ";
-
-      cout << "Data : " << receivedData << endl;
-
-
-
-      delay(100);
-
-    }
-
-  }
-
-  return 0;
-
-}
+    
 
