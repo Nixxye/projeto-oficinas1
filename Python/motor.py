@@ -1,36 +1,45 @@
 from time import sleep
-import RPi.GPIO as GPIO
+import pigpio
 import T_class
 import asyncio
 
 #define GPIO pins
-DIR = 22
-STEP = 23
-CW = 1
-CCW = 0
-SPR = 160
+DIR = 21
+STEP = 20
+
 
 class Motor(T_class.T_class):  
-    def __init__(self):
-        super().__init__()
-        
-        self.step_count = SPR
-        self.delay = 0.01
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(DIR, GPIO.OUT)
-        GPIO.setup(STEP, GPIO.OUT)
-        GPIO.output(DIR, CCW)
-        
-    async def run(self):
-        while not T_class.T_class.end:
-            GPIO.output(STEP, GPIO.HIGH)
-            await asyncio.sleep(self.delay)
-            #sleep(self.delay)
-            GPIO.output(STEP, GPIO.LOW)
-            await asyncio.sleep(self.delay)
-            #sleep(self.delay)
-                            
-    def set_speed(self, s):
-        self.delay = 10 / s
+	def __init__(self):
+		super().__init__()
+		self.pi = pigpio.pi()
+		self.delay = 0.01
+		self.pi.set_mode(DIR, pigpio.OUTPUT)
+		self.pi.set_mode(STEP, pigpio.OUTPUT)
+		self.MODE = (14, 15, 18)
+		self.RESOLUTION = {'Full': (0, 0, 0),
+							 'Half': (1, 0, 0),
+							 '1/4': (0, 1, 0),
+							 '1/8': (1, 1, 0),
+							 '1/16': (0, 0, 1),
+							 '1/32': (1, 0, 1)}
+							 
+		for i in range(3):
+			self.pi.write(self.MODE[i], self.RESOLUTION['Full'][i])
 
+		# Set duty cycle and frequency
+		self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
+		self.pi.set_PWM_frequency(STEP, 350)  # 500 pulses per second	
+		
+	def __del__(self):
+		self.pi.set_PWM_dutycycle(STEP, 0)
+		self.pi.stop()	
+		
+	async def run(self):
+		while not T_class.T_class.end:
+			#self.write(DIR, 0)
+			await asyncio.sleep(self.delay)
+            #sleep(self.delay)
 
+							
+	def set_speed(self, s):
+		self.delay = 10 / s
