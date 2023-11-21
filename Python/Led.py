@@ -29,7 +29,7 @@ class Led(T_class.T_class):
             try:
                 with open(filename, 'r') as file:
                     lines = file.readlines()
-
+                    led = 3
                     # Itera sobre cada linha do arquivo
                     for line in lines:
                         # Remove os caracteres de quebra de linha
@@ -45,18 +45,21 @@ class Led(T_class.T_class):
                             # Faz algo com os 4 números
                             print(numbers)
                             if numbers[0] == '1':
-                                self.pixels[0] = (255, 0, 0)
+                                self.pixels[led] = (255, 0, 0)
                             elif numbers[1] == '1':
-                                self.pixels[0] = (0, 255, 0)
+                                self.pixels[led] = (0, 255, 0)
                             elif numbers[2] == '1':
-                                self.pixels[0] = (0, 255, 0)
+                                self.pixels[led] = (0, 255, 0)
                             elif numbers[3] == '1':
-                                self.pixels[0] = (255, 0, 255)
+                                self.pixels[led] = (255, 0, 255)
                             else:
-                                self.pixels[0] = (255, 255, 255)
-                                
+                                self.pixels[led] = (255, 255, 255)
+
                             self.pixels.show()
 
+                            led = led + 1
+                            if led >= self.num_pixels:
+                                led = 0
 
                             # Aguarda um pouco antes de processar o próximo grupo
                             await asyncio.sleep(1)
