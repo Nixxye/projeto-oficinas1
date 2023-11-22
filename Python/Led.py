@@ -18,56 +18,64 @@ class Led(T_class.T_class):
         self.pixels = neopixel.NeoPixel(
             self.pixel_pin, self.num_pixels, brightness=0.2, auto_write=False, pixel_order=self.ORDER
         )
+        self.pixels.fill((255, 255, 255))
+        self.pixels.show()
+        time.sleep(1)
+
     
     async def run(self):
         while not T_class.T_class.end:
             #await self.rainbow_cycle(0.001)
             await self.music(PATH)
             await asyncio.sleep(0.01)
-
+    async def show(self):
+        while 1:
+            self.pixels.show()
+            await asyncio.sleep(0.01)
     async def music(self, filename):
-            try:
-                with open(filename, 'r') as file:
-                    lines = file.readlines()
-                    led = 3
-                    # Itera sobre cada linha do arquivo
-                    for line in lines:
-                        # Remove os caracteres de quebra de linha
-                        line = line.strip()
+        try:
+            with open(filename, 'r') as file:
+                lines = file.readlines()
+                led = 3
+                # Itera sobre cada linha do arquivo
+                for line in lines:
+                    # Remove os caracteres de quebra de linha
+                    line = line.strip()
 
-                        # Obtém grupos de 4 dígitos de cada linha
-                        for i in range(0, len(line), 4):
-                            numbers = line[i:i+4]
+                    # Obtém grupos de 4 dígitos de cada linha
+                    for i in range(0, len(line), 4):
+                        numbers = line[i:i+4]
 
-                            # Converte o grupo de dígitos para números inteiros
-                            #numbers = [int(digit) for digit in group_of_digits]
+                        # Converte o grupo de dígitos para números inteiros
+                        #numbers = [int(digit) for digit in group_of_digits]
 
-                            # Faz algo com os 4 números
-                            print(numbers)
-                            if numbers[0] == '1':
-                                self.pixels[led] = (255, 0, 0)
-                            elif numbers[1] == '1':
-                                self.pixels[led] = (0, 255, 0)
-                            elif numbers[2] == '1':
-                                self.pixels[led] = (0, 255, 0)
-                            elif numbers[3] == '1':
-                                self.pixels[led] = (255, 0, 255)
-                            else:
-                                self.pixels[led] = (255, 255, 255)
+                        # Faz algo com os 4 números
+                        #for j in range(self.num_pixels)
+                            #self.pixels[j] = ((255, 255, 255, 0))
+                        print(numbers)
+                        if numbers[0] == '1':
+                            self.pixels[led] = (255, 0, 0)
+                        elif numbers[1] == '1':
+                            self.pixels[led] = (0, 255, 0)
+                        elif numbers[2] == '1':
+                            self.pixels[led] = (0, 255, 0)
+                        elif numbers[3] == '1':
+                            self.pixels[led] = (255, 0, 255)
+                        else:
+                            self.pixels[led] = (255, 255, 255)
 
-                            self.pixels.show()
+                        #self.pixels.show()
 
-                            led = led + 1
-                            if led >= self.num_pixels:
-                                led = 0
+                        led = led + 1
+                        if led >= self.num_pixels:
+                            led = 0
 
-                            # Aguarda um pouco antes de processar o próximo grupo
-                            await asyncio.sleep(1)
-
-            except FileNotFoundError:
-                print(f"Arquivo {filename} não encontrado.")
-            except Exception as e:
-                print(f"Erro ao ler o arquivo {filename}: {e}")
+                        # Aguarda um pouco antes de processar o próximo grupo
+                        await asyncio.sleep(1)
+        except FileNotFoundError:
+            print(f"Arquivo {filename} não encontrado.")
+        except Exception as e:
+            print(f"Erro ao ler o arquivo {filename}: {e}")
     def wheel(self, pos):
         # Input a value 0 to 255 to get a color value.
         # The colours are a transition r - g - b - back to r.

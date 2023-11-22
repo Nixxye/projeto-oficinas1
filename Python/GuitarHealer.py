@@ -14,6 +14,7 @@ class GuitarHealer:
         #self.threads.append(loop.create_task(self.motor.run()))
         #self.threads.append(loop.create_task(self.lcd.run()))
         self.threads.append(loop.create_task(self.led.run()))
+        self.threads.append(loop.create_task(self.led.show()))
         
     def close(self):
         T_class.T_class.close()
