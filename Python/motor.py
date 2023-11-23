@@ -28,18 +28,20 @@ class Motor(T_class.T_class):
 
 		# Set duty cycle and frequency
 		self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
-		self.pi.set_PWM_frequency(STEP, 350)  # 500 pulses per second	
+		self.pi.set_PWM_frequency(STEP, 150)  # 500 pulses per second	
 		
 	def __del__(self):
 		self.pi.set_PWM_dutycycle(STEP, 0)
 		self.pi.stop()	
 		
 	async def run(self):
-		while not T_class.T_class.end:
-			#self.write(DIR, 0)
-			await asyncio.sleep(self.delay)
-            #sleep(self.delay)
-
-							
-	def set_speed(self, s):
-		self.delay = 10 / s
+		try:
+			while not T_class.T_class.end:
+				self.pi.write(DIR, 0)
+				await asyncio.sleep(self.delay)
+				#sleep(self.delay)
+		except KeyboardInterrupt:
+			self.close()
+	
+	async def calibrate(self, queue):
+		if 
