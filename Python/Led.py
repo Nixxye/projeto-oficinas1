@@ -21,6 +21,7 @@ class Led(T_class.T_class):
         self.pixels.fill((255, 255, 255))
         self.pixels.show()
         time.sleep(1)
+        self.position = 0
 
     
     async def run(self):

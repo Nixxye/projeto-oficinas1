@@ -2,6 +2,7 @@ from time import sleep
 import pigpio
 import T_class
 import asyncio
+from queue import Queue
 
 #define GPIO pins
 DIR = 21
@@ -39,9 +40,24 @@ class Motor(T_class.T_class):
 			while not T_class.T_class.end:
 				self.pi.write(DIR, 0)
 				await asyncio.sleep(self.delay)
-				#sleep(self.delay)
 		except KeyboardInterrupt:
 			self.close()
 	
-	async def calibrate(self, queue):
-		if 
+	async def calibrate(self, pipe):
+		self.pi.set_PWM_frequency(STEP, 100)
+		go = True
+
+		while go:
+			if not pipe.empty():
+				input = pipe.get()
+				if input[0] == 1:
+					self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
+					self.pi.write(DIR, 1)
+				elif input[1] == 1:
+					self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
+					self.pi.write(DIR, 0)
+				elif input[2] == 1:
+					self.pi.set_PWM_dutycycle(STEP, 0)
+					go = False
+				else:
+					self.pi.set_PWM_dutycycle(STEP, 0)
