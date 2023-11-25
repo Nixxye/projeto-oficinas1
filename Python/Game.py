@@ -6,10 +6,11 @@ import time
 import Motor
 import T_class
 import Led
+import Receiver
+
 '''
 import Player
 import Lcd
-import Receiver
 '''
 TIME_MOTOR = 2
 FILE = "girls.mp3"
@@ -20,12 +21,13 @@ class Game:
         #self.player = Player.Player()
         #self.lcd = Lcd.Lcd()
         self.led = Led.Led()
-        #self.receiver = Receiver.Receiver()
+        self.receiver = Receiver.Receiver()
 
         self.loop = asyncio.get_event_loop()
         self.threads = []
-        #self.pipe = self.receiver.getPipe()
+        self.pipe = self.receiver.getPipe()
 
+        self.loop.run_until_complete(self.receiver.run())
         atexit.register(self.close)
 
     def calibrate(self):
@@ -33,9 +35,10 @@ class Game:
 
     def close(self):
         T_class.T_class.close()
+        '''
         for thread in self.threads:
             thread.cancel()
-
+        '''
         self.loop.stop()
         self.loop.close()
 
