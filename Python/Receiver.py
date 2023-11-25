@@ -2,24 +2,23 @@ import serial,time
 from queue import Queue
 import asyncio
 #sudo rfcomm bind 0 98:D3:51:FD:8B:69 1
-DELAY = 0.2
+DELAY = 0.1
 
 class Receiver:
-    def __init__(self, queue):
-        self.pipe = queue
+    def __init__(self, pipe):
+        self.pipe_sender = pipe
         self.ser = serial.Serial('/dev/rfcomm0', 9600, timeout=0.1)
         self.ser.flushInput()
         self.ser.flushOutput()
 
-    def getPipe(self):
-        return self.pipe
-    
     def __del__(self):
         self.ser.flushInput()
         self.ser.flushOutput() 
 
     async def run(self):
+        print("No Rcv")
         while True:
+            print("rcv")
             vet = [0,0,0,0]
             try:
                 n_bytes = self.ser.inWaiting()
@@ -41,10 +40,10 @@ class Receiver:
                     if data >= 1:
                         vet[0] = 1
                     #print(vet)
-                    self.pipe.put(vet)
-                    print("d")
+                    self.pipe_sender.send(vet)
+                    print(vet)
                     #print(data.decode("utf-8").strip())
-            except KeyboardInterrupt:
-                break
+            except Exception as e:
+                print(f"Error: {e}")
 
             await asyncio.sleep(DELAY)

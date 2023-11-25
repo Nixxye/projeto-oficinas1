@@ -1,6 +1,6 @@
 import atexit
 import asyncio
-from queue import Queue
+from multiprocessing import Pipe
 import time
 
 import Motor
@@ -17,23 +17,22 @@ FILE = "girls.mp3"
 
 class Game:
     def __init__(self):
-        self.motor = Motor.Motor()
         #self.player = Player.Player()
         #self.lcd = Lcd.Lcd()
         self.led = Led.Led()
 
         self.loop = asyncio.get_event_loop()
         self.threads = []
-        self.pipe = Queue()
-        self.receiver = Receiver.Receiver(self.pipe)
-
+        self.pipe_receiver, self.pipe_sender = Pipe(duplex=False)
+        self.receiver = Receiver.Receiver(self.pipe_sender)
+        self.motor = Motor.Motor(self.pipe_receiver)
 
         atexit.register(self.close)
 
     async def calibrate(self):
         await asyncio.gather(
             self.receiver.run(),
-            self.motor.calibrate(self.pipe))
+            self.motor.calibrate())
 
     def close(self):
         T_class.T_class.close()

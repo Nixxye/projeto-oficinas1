@@ -10,10 +10,11 @@ STEP = 20
 
 
 class Motor(T_class.T_class):  
-	def __init__(self):
+	def __init__(self, pipe):
 		super().__init__()
 		self.pi = pigpio.pi()
 		self.delay = 0.01
+		self.pipe_receiver = pipe
 		self.pi.set_mode(DIR, pigpio.OUTPUT)
 		self.pi.set_mode(STEP, pigpio.OUTPUT)
 		self.MODE = (14, 15, 18)
@@ -43,15 +44,16 @@ class Motor(T_class.T_class):
 		except KeyboardInterrupt:
 			self.close()
 	
-	async def calibrate(self, pipe):
+	async def calibrate(self):
 		self.pi.set_PWM_frequency(STEP, 100)
 		self.pi.set_PWM_dutycycle(STEP, 0)
 
 		go = True
-
+		print("no loop")
 		while go:
-			if not pipe.empty():
-				input = pipe.get()
+			print("motr")
+			if self.pipe_receiver.poll():
+				input = self.pipe_receiver.recv()
 				print(input)
 				if input[3] == 1:
 					self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
@@ -61,9 +63,11 @@ class Motor(T_class.T_class):
 					self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
 					self.pi.write(DIR, 0)
 					print("Direita")
+					'''
 				elif input[2] == 1:
 					self.pi.set_PWM_dutycycle(STEP, 0)
 					go = False
+					'''
 				else:
 					self.pi.set_PWM_dutycycle(STEP, 0)
-				await asyncio.sleep(0.2)
+			await asyncio.sleep(0.1)
