@@ -28,7 +28,7 @@ class Motor(T_class.T_class):
 			self.pi.write(self.MODE[i], self.RESOLUTION['Full'][i])
 
 		# Set duty cycle and frequency
-		self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
+		self.pi.set_PWM_dutycycle(STEP, 0)  # PWM 1/2 On 1/2 Off
 		self.pi.set_PWM_frequency(STEP, 150)  # 500 pulses per second	
 		
 	def __del__(self):
@@ -45,19 +45,25 @@ class Motor(T_class.T_class):
 	
 	async def calibrate(self, pipe):
 		self.pi.set_PWM_frequency(STEP, 100)
+		self.pi.set_PWM_dutycycle(STEP, 0)
+
 		go = True
 
 		while go:
 			if not pipe.empty():
 				input = pipe.get()
-				if input[0] == 1:
+				print(input)
+				if input[3] == 1:
 					self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
 					self.pi.write(DIR, 1)
-				elif input[1] == 1:
+					print("Esquerda")
+				elif input[0] == 1:
 					self.pi.set_PWM_dutycycle(STEP, 128)  # PWM 1/2 On 1/2 Off
 					self.pi.write(DIR, 0)
+					print("Direita")
 				elif input[2] == 1:
 					self.pi.set_PWM_dutycycle(STEP, 0)
 					go = False
 				else:
 					self.pi.set_PWM_dutycycle(STEP, 0)
+				await asyncio.sleep(0.2)

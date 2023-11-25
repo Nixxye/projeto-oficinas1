@@ -21,17 +21,19 @@ class Game:
         #self.player = Player.Player()
         #self.lcd = Lcd.Lcd()
         self.led = Led.Led()
-        self.receiver = Receiver.Receiver()
 
         self.loop = asyncio.get_event_loop()
         self.threads = []
-        self.pipe = self.receiver.getPipe()
+        self.pipe = Queue()
+        self.receiver = Receiver.Receiver(self.pipe)
 
-        self.loop.run_until_complete(self.receiver.run())
+
         atexit.register(self.close)
 
-    def calibrate(self):
-        self.motor.calibrate(self.pipe)
+    async def calibrate(self):
+        await asyncio.gather(
+            self.receiver.run(),
+            self.motor.calibrate(self.pipe))
 
     def close(self):
         T_class.T_class.close()

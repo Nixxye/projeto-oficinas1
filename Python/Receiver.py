@@ -5,8 +5,8 @@ import asyncio
 DELAY = 0.2
 
 class Receiver:
-    def __init__(self):
-        self.pipe = Queue()
+    def __init__(self, queue):
+        self.pipe = queue
         self.ser = serial.Serial('/dev/rfcomm0', 9600, timeout=0.1)
         self.ser.flushInput()
         self.ser.flushOutput()
@@ -27,8 +27,8 @@ class Receiver:
                     val = self.ser.read(n_bytes)
                     b_array = bytearray(val)
                     data = int(chr(b_array[0]))
-                    print(val)
-                    print(data)
+                    #print(val)
+                    #print(data)
                     if data >= 8:
                         vet[3] = 1
                         data = data - 8
@@ -40,8 +40,9 @@ class Receiver:
                         data = data - 2
                     if data >= 1:
                         vet[0] = 1
-                    print(vet)
+                    #print(vet)
                     self.pipe.put(vet)
+                    print("d")
                     #print(data.decode("utf-8").strip())
             except KeyboardInterrupt:
                 break
