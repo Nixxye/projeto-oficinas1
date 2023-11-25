@@ -10,7 +10,7 @@ PATH = "1985.txt"
 class Led(T_class.T_class):
     def __init__(self):
         # NeoPixels must be connected to D10, D12, D18 or D21 to work.
-        self.pixel_pin = board.D21 
+        self.pixel_pin = board.D12 
         self.num_pixels = 19
         # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
         # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
