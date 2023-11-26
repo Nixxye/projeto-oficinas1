@@ -12,7 +12,7 @@ import Player
 '''
 import Lcd
 '''
-F_LEDS = 0.3
+F_LEDS = 0.31
 TIME_MOTOR = 2
 TIME_PLAYER = 3
 FILE = "girls.txt"
