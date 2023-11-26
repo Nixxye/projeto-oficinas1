@@ -72,13 +72,15 @@ class Game:
         try:
             with open(FILE, 'r') as file:
                 #await self.loop.run_in_executor(None, self.player.play)
+                task = asyncio.create_task(self.led.show())
+                await asyncio.sleep(1)
                 self.player.play()
                 #await asyncio.sleep(TIME_PLAYER)
                 await asyncio.gather(
-                    self.led.show(),
                     self.controlLeds(file),
                     self.led.show(),
-                    self.motor.run()
+                    self.motor.run(),
+                    task
                 )
                 #await asyncio.sleep(TIME_MOTOR)
                 #self.motor.run()
@@ -107,4 +109,5 @@ class Game:
                 for i in range(0, len(line), 4):
                     numbers = line[i:i+4]
                     await self.led.changeLed(numbers)
-                    await asyncio.sleep(F_LEDS)
+                    if i < 10:
+                        await asyncio.sleep(F_LEDS)
