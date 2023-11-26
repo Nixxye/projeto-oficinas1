@@ -8,10 +8,8 @@ import T_class
 import Led
 import Receiver
 import Player
-
-'''
 import Lcd
-'''
+
 F_LEDS = 0.31
 TIME_MOTOR = 2
 TIME_PLAYER = 3
@@ -21,14 +19,14 @@ FILE = "girls.txt"
 class Game:
     def __init__(self):
         self.player = Player.Player()
-        #self.lcd = Lcd.Lcd()
         self.led = Led.Led()
 
         self.loop = asyncio.get_event_loop()
         self.threads = []
         self.pipe_receiver, self.pipe_sender = Pipe(duplex=False)
+        
         self.go = Value('b', False)
-
+        self.lcd = Lcd.Lcd(self.go)
         self.receiver = Receiver.Receiver(self.pipe_sender, self.go)
         self.motor = Motor.Motor(self.pipe_receiver, self.go)
 
@@ -42,7 +40,8 @@ class Game:
         self.go.value = True
         await asyncio.gather(
             self.receiver.run(),
-            self.motor.calibrate()
+            self.motor.calibrate(),
+            self.lcd.show("Calibrando", "Indicador: Girar    Médio: OK")
             )
         
         self.clear_pipe()
@@ -72,6 +71,7 @@ class Game:
         try:
             with open(FILE, 'r') as file:
                 #await self.loop.run_in_executor(None, self.player.play)
+                self.go.value = True
                 task = asyncio.create_task(self.led.show())
                 await asyncio.sleep(1)
                 self.player.play()
@@ -80,7 +80,8 @@ class Game:
                     self.controlLeds(file),
                     self.led.show(),
                     self.motor.run(),
-                    task
+                    task,
+                    self.lcd.show("Guitar Healer", "Something in The Way - Nirvana - ")
                 )
                 #await asyncio.sleep(TIME_MOTOR)
                 #self.motor.run()
