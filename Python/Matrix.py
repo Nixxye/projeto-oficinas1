@@ -21,10 +21,12 @@ class Matrix:
     def hit(self):
         self.number = self.number + 1
         self.change()
+        #print(self.number)
 
     def miss(self):
-        self.number = self.number - 1
+        self.number = 0
         self.change()
+        #print(self.number)
 
     def change(self):
         with canvas(self.device) as draw:

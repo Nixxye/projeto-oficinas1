@@ -2,6 +2,7 @@ import time
 import board
 import neopixel
 import asyncio
+from multiprocessing import Value
 
 import T_class
 
@@ -9,10 +10,11 @@ PATH = "1985.txt"
 TIME_ENDLED = 0.1
 
 class Led(T_class.T_class):
-    def __init__(self):
+    def __init__(self, id):
         # NeoPixels must be connected to D10, D12, D18 or D21 to work.
         self.pixel_pin = board.D12 
         self.num_pixels = 12
+        self.index = id
         # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
         # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
         self.ORDER = neopixel.GRB
@@ -71,6 +73,7 @@ class Led(T_class.T_class):
                         led = led + 1
                         if led >= self.num_pixels:
                             led = 0
+                        self.index.value = self.index.value + 1
 
                         # Aguarda um pouco antes de processar o próximo grupo
                         await asyncio.sleep(1)
@@ -123,6 +126,9 @@ class Led(T_class.T_class):
         self.position = self.position - 1
         if self.position < 0:
             self.position = self.num_pixels - 1   
+
+        self.index.value = self.index.value + 1
+
 
     def timingTest(self):
         self.pixels[self.position] = (0, 0, 0)

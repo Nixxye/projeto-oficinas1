@@ -62,5 +62,5 @@ class Motor(T_class.T_class):
 					print("Parando")
 				else:
 					self.pi.set_PWM_dutycycle(STEP, 0)
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.05)
 		print("Saindo motor")
