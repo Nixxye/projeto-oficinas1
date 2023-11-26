@@ -6,6 +6,7 @@ import asyncio
 import T_class
 
 PATH = "1985.txt"
+TIME_ENDLED = 0.1
 
 class Led(T_class.T_class):
     def __init__(self):
@@ -21,7 +22,7 @@ class Led(T_class.T_class):
         self.pixels.fill((255, 255, 255))
         self.pixels.show()
         time.sleep(1)
-        self.position = 0
+        self.position = int(self.num_pixels / 2 + 1)
 
     
     async def run(self):
@@ -105,3 +106,20 @@ class Led(T_class.T_class):
                 self.pixels[i] = self.wheel(pixel_index & 255)
             self.pixels.show()
             await asyncio.sleep(wait)
+    
+    async def changeLed(self, vet):
+
+        if vet[0] == '1':
+            self.pixels[self.position] = (255, 0, 0)
+        elif vet[1] == '1':
+            self.pixels[self.position] = (0, 255, 0)
+        elif vet[2] == '1':
+            self.pixels[self.position] = (0, 255, 0)
+        elif vet[3] == '1':
+            self.pixels[self.position] = (255, 0, 255)
+        else:
+            self.pixels[self.position] = (255, 255, 255)
+
+        self.position = self.position + 1
+        if self.position >= self.num_pixels:
+            self.position = 0       

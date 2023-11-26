@@ -1,38 +1,51 @@
 import atexit
 import asyncio
-from multiprocessing import Pipe
+from multiprocessing import Pipe, Value
 import time
 
 import Motor
 import T_class
 import Led
 import Receiver
+import Player
 
 '''
-import Player
 import Lcd
 '''
+F_LEDS = 0.2
 TIME_MOTOR = 2
-FILE = "girls.mp3"
+TIME_PLAYER = 3
+FILE = "girls.txt"
+#colocar arquivo de música aqui também
 
 class Game:
     def __init__(self):
-        #self.player = Player.Player()
+        self.player = Player.Player()
         #self.lcd = Lcd.Lcd()
         self.led = Led.Led()
 
         self.loop = asyncio.get_event_loop()
         self.threads = []
         self.pipe_receiver, self.pipe_sender = Pipe(duplex=False)
-        self.receiver = Receiver.Receiver(self.pipe_sender)
-        self.motor = Motor.Motor(self.pipe_receiver)
+        self.go = Value('b', False)
+
+        self.receiver = Receiver.Receiver(self.pipe_sender, self.go)
+        self.motor = Motor.Motor(self.pipe_receiver, self.go)
 
         atexit.register(self.close)
 
+    def clear_pipe(self):
+        while self.pipe_receiver.poll():
+            _ = self.pipe_receiver.recv()
+
     async def calibrate(self):
+        self.go.value = True
         await asyncio.gather(
             self.receiver.run(),
-            self.motor.calibrate())
+            self.motor.calibrate()
+            )
+        
+        self.clear_pipe()
 
     def close(self):
         T_class.T_class.close()
@@ -55,32 +68,43 @@ class Game:
         if hasattr(self, 'receiver'):
             self.receiver.__del__()
         '''
-    def run(self):
-        '''
+    async def run(self):
         try:
             with open(FILE, 'r') as file:
-                self.threads.append(self.loop.create_task(self.controlLeds(file)))
+                #await self.loop.run_in_executor(None, self.player.play)
+                self.player.play()
+                #await asyncio.sleep(TIME_PLAYER)
+                await asyncio.gather(
+                    self.led.show(),
+                    self.controlLeds(file),
+                    self.led.show(),
+                    self.motor.run()
+                )
+                #await asyncio.sleep(TIME_MOTOR)
+                #self.motor.run()
+#                self.threads.append(self.loop.create_task(self.controlLeds(file)))
         except FileNotFoundError:
             print(f"Arquivo {FILE} não encontrado.")
         except Exception as e:
             print(f"Erro ao ler o arquivo {FILE}: {e}")
-        '''
-        #self.threads.append(self.loop.create_task(self.motor.run()))
         #self.threads.append(self.loop.create_task(self.led.run()))
-        #time.sleep(TIME_MOTOR)
+
+        #self.threads.append(self.loop.create_task(self.motor.run()))
+
         #self.threads.append(self.loop.create_task(self.led.rainbow_cycle(0.01)))
-        self.loop.run_until_complete(self.led.rainbow_cycle(0.01))
-        self.loop.run_until_complete(self.motor.run())
+        #self.loop.run_until_complete(self.led.rainbow_cycle(0.01))
+        #self.loop.run_until_complete(self.motor.run())
 
     async def controlLeds(self, file):
-            lines = file.readlines()
-            while 1:
-                # Itera sobre cada linha do arquivo
-                for line in lines:
-                    # Remove os caracteres de quebra de linha
-                    line = line.strip()
+        lines = file.readlines()
+        while 1:
+            # Itera sobre cada linha do arquivo
+            for line in lines:
+                # Remove os caracteres de quebra de linha
+                line = line.strip()
 
-                    # Obtém grupos de 4 dígitos de cada linha
-                    for i in range(0, len(line), 4):
-                        numbers = line[i:i+4]
-                        await asyncio.sleep(1)
+                # Obtém grupos de 4 dígitos de cada linha
+                for i in range(0, len(line), 4):
+                    numbers = line[i:i+4]
+                    await self.led.changeLed(numbers)
+                    await asyncio.sleep(F_LEDS)
