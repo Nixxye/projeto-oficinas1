@@ -12,7 +12,7 @@ import Player
 '''
 import Lcd
 '''
-F_LEDS = 0.2
+F_LEDS = 0.3
 TIME_MOTOR = 2
 TIME_PLAYER = 3
 FILE = "girls.txt"
@@ -101,6 +101,7 @@ class Game:
         lines = file.readlines()
         while 1:
             # Itera sobre cada linha do arquivo
+            j = 0
             for line in lines:
                 # Remove os caracteres de quebra de linha
                 line = line.strip()
@@ -108,6 +109,9 @@ class Game:
                 # Obtém grupos de 4 dígitos de cada linha
                 for i in range(0, len(line), 4):
                     numbers = line[i:i+4]
+                    #self.led.timingTest()
+                    #await asyncio.sleep(F_LEDS)
                     await self.led.changeLed(numbers)
-                    if i < 10:
+                    if j > 4:
                         await asyncio.sleep(F_LEDS)
+                    j = j + 1

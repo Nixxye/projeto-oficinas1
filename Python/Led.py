@@ -12,7 +12,7 @@ class Led(T_class.T_class):
     def __init__(self):
         # NeoPixels must be connected to D10, D12, D18 or D21 to work.
         self.pixel_pin = board.D12 
-        self.num_pixels = 13
+        self.num_pixels = 12
         # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
         # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
         self.ORDER = neopixel.GRB
@@ -122,4 +122,18 @@ class Led(T_class.T_class):
 
         self.position = self.position - 1
         if self.position < 0:
-            self.position = self.num_pixels - 1      
+            self.position = self.num_pixels - 1   
+
+    def timingTest(self):
+        self.pixels[self.position] = (0, 0, 0)
+        self.position = self.position - 1
+        if self.position < 0:
+            self.position = self.num_pixels - 1
+        self.pixels[self.position] = (255, 0, 0)
+        print(self.position)
+
+    def rot (self, n):
+        if n < 0:
+            return self.num_pixels - 1
+        else:
+            return n

@@ -7,7 +7,7 @@ from multiprocessing import Value
 DIR = 21
 STEP = 20
 
-VEL = 400
+VEL = 200
 TIME_MOTOR = 0.5
 class Motor(T_class.T_class):  
 	def __init__(self, pipe, go):
